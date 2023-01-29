@@ -517,7 +517,7 @@ GameObject:
   - component: {fileID: 689191005}
   - component: {fileID: 689191004}
   - component: {fileID: 689191003}
-  m_Layer: 6
+  m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -539,7 +539,8 @@ MonoBehaviour:
   mainCamera: {fileID: 681888750}
   sensitivity: 1.5
   moveForce: 3000
-  maxMoveSpeed: 400
+  baseMoveSpeed: 400
+  runMoveSpeed: 600
 --- !u!54 &689191004
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -555,7 +556,7 @@ Rigidbody:
   m_IsKinematic: 0
   m_Interpolate: 1
   m_Constraints: 112
-  m_CollisionDetection: 0
+  m_CollisionDetection: 1
 --- !u!136 &689191005
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -578,7 +579,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 689191002}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 5, y: 1.3, z: 5}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -1037,6 +1038,13 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 64
   stateText: {fileID: 1391681640}
+  sprite: {fileID: 1573882224}
+  farDistance: 50
+  midDistance: 25
+  moveForce: 3000
+  baseMoveSpeed: 275
+  runMoveSpeed: 475
+  mazeGenObj: {fileID: 2098666926}
 --- !u!136 &2011947325
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -1067,7 +1075,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2011947323}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 35, y: 2.5, z: 5}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -1084,7 +1092,7 @@ NavMeshAgent:
   m_GameObject: {fileID: 2011947323}
   m_Enabled: 1
   m_AgentTypeID: 0
-  m_Radius: 0.5
+  m_Radius: 1.68
   m_Speed: 3.5
   m_Acceleration: 8
   avoidancePriority: 50
@@ -1093,8 +1101,8 @@ NavMeshAgent:
   m_AutoTraverseOffMeshLink: 1
   m_AutoBraking: 1
   m_AutoRepath: 1
-  m_Height: 2
-  m_BaseOffset: 0
+  m_Height: 5
+  m_BaseOffset: 2.5
   m_WalkableMask: 4294967295
   m_ObstacleAvoidanceType: 4
 --- !u!1 &2098666926
@@ -1145,3 +1153,5 @@ MonoBehaviour:
   wallMaterial: {fileID: 2100000, guid: 17c44fb3e5be9644586a0728a5f5a386, type: 2}
   gridWidth: 9
   gridLength: 7
+  player: {fileID: 689191002}
+  monster: {fileID: 2011947323}
