@@ -19,6 +19,9 @@ public class FirstPersonController : MonoBehaviour
     private float pitch;
     private float yaw;
 
+    public bool isStandingStill;
+    [SerializeField] private float standingStillTimer = 1f;
+
 
     // Start is called before the first frame update
     void Start()
@@ -48,7 +51,21 @@ public class FirstPersonController : MonoBehaviour
         Vector3 vel = new Vector3(rigidBody.velocity.x, 0, rigidBody.velocity.z);
         rigidBody.AddForce(-vel * (moveForce / maxMoveSpeed), ForceMode.Acceleration);
 
-        
+        if(Input.GetAxisRaw("Horizontal") == 0 && Input.GetAxisRaw("Vertical") == 0)
+        {
+            //StartCoroutine(standingStillCheck());
+            isStandingStill = true;
+        } else
+        {
+            isStandingStill = false;
+        }
+    }
+
+    IEnumerator standingStillCheck()
+    {
+        isStandingStill = false;
+        yield return new WaitForSeconds(standingStillTimer);
+        isStandingStill = true;
     }
 
     public void SetSprint(bool isSprinting)
