@@ -38,7 +38,7 @@ public class FlashCamera : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (Input.GetMouseButtonDown(0) && canTakePicture)
+        if (Input.GetMouseButtonDown(0) && canTakePicture && monster != null)
         {
             int picScore = scoreCalculateFromDistance(monster);
             StartCoroutine(PictureFlash(picScore));
@@ -111,7 +111,7 @@ public class FlashCamera : MonoBehaviour
                     multiplierText.SetText("CENTERED SHOT!");
                 }
 
-                
+                monster.GetComponent<Monster>().picCount += 1;
 
                 float standingStillMultiplier = stillShot ? dotProductResult - 0.15f : 0.3f * dotProductResult;
                 float closeShotMultiplier = closeShot ? distance * 2.5f : distance * 8f;

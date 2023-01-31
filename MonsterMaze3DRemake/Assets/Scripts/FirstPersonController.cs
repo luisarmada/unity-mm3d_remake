@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.SceneManagement;
 
 public class FirstPersonController : MonoBehaviour
 {
@@ -14,13 +15,14 @@ public class FirstPersonController : MonoBehaviour
 
     private float maxMoveSpeed;
 
-    [SerializeField] private float baseMoveSpeed;
-    [SerializeField] private float runMoveSpeed;
+    [SerializeField] private float baseMoveSpeed, huntMoveSpeed, runMoveSpeed;
     private float pitch;
     private float yaw;
 
     public bool isStandingStill;
     [SerializeField] private float standingStillTimer = 1f;
+
+    public bool canLoadNextLevel = false;
 
 
     // Start is called before the first frame update
@@ -30,6 +32,16 @@ public class FirstPersonController : MonoBehaviour
         rigidBody = gameObject.GetComponent<Rigidbody>();
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
+    }
+
+    private void Update()
+    {
+        if (canLoadNextLevel)
+        {
+            if(Input.GetKeyDown(KeyCode.Y)) {
+                SceneManager.LoadScene("GameScene");
+            }
+        }
     }
 
     // Update is called once per frame
@@ -68,15 +80,12 @@ public class FirstPersonController : MonoBehaviour
         isStandingStill = true;
     }
 
-    public void SetSprint(bool isSprinting)
+    public void SetSpeedState(int state)
     {
-        if (isSprinting)
-        {
-            maxMoveSpeed = runMoveSpeed;
-        } else
-        {
-            maxMoveSpeed = baseMoveSpeed;
-        }
+        if (state == 0) maxMoveSpeed = baseMoveSpeed;
+        else if (state == 1) maxMoveSpeed = huntMoveSpeed;
+        else if (state == 2) maxMoveSpeed = runMoveSpeed;
+        else moveForce = 0;
     }
 
 }

@@ -96,7 +96,7 @@ public class MazeGenerator : MonoBehaviour
                     new Face[] {
             new Face(new int[] { 0, 2, 1 }),
             new Face(new int[] { 2, 3, 1}) });
-            wall.SetMaterial(wall.faces, borderMaterial);
+            wall.SetMaterial(wall.faces, wallMaterial);
             wall.Refresh();
             wall.ToMesh();
             wall.AddComponent<BoxCollider>();
@@ -166,8 +166,8 @@ public class MazeGenerator : MonoBehaviour
             wall.transform.SetParent(wallCell.transform, true);
             wall.AddComponent<NavMeshObstacle>();
             wall.GetComponent<NavMeshObstacle>().carving= true;
-            wall.GetComponent<NavMeshObstacle>().center = new Vector3(5f, 2.5f, 0f);
-            wall.GetComponent<NavMeshObstacle>().size = new Vector3(15f, 5f, 5f);
+            wall.GetComponent<NavMeshObstacle>().center = new Vector3(5f, 2.5f, 1.5f);
+            wall.GetComponent<NavMeshObstacle>().size = new Vector3(15f, 5f, 8f);
         }
         wallCell.transform.position = new Vector3(cy * 10f, 0, cx * 10f);
         return wallCell;
