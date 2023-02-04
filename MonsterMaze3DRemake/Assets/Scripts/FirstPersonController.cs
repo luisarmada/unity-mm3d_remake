@@ -24,6 +24,8 @@ public class FirstPersonController : MonoBehaviour
 
     public bool canLoadNextLevel = false;
 
+    private int moveSpeedMult;
+
 
     // Start is called before the first frame update
     void Start()
@@ -32,6 +34,8 @@ public class FirstPersonController : MonoBehaviour
         rigidBody = gameObject.GetComponent<Rigidbody>();
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
+
+        moveSpeedMult = PlayerPrefs.GetInt("MovementSpeed");
     }
 
     private void Update()
@@ -42,6 +46,7 @@ public class FirstPersonController : MonoBehaviour
                 SceneManager.LoadScene("GameScene");
             }
         }
+        Debug.Log("Money: " + PlayerPrefs.GetInt("MoneyEarned"));
     }
 
     // Update is called once per frame
@@ -82,9 +87,9 @@ public class FirstPersonController : MonoBehaviour
 
     public void SetSpeedState(int state)
     {
-        if (state == 0) maxMoveSpeed = baseMoveSpeed;
-        else if (state == 1) maxMoveSpeed = huntMoveSpeed;
-        else if (state == 2) maxMoveSpeed = runMoveSpeed;
+        if (state == 0) maxMoveSpeed = baseMoveSpeed * moveSpeedMult;
+        else if (state == 1) maxMoveSpeed = huntMoveSpeed * moveSpeedMult;
+        else if (state == 2) maxMoveSpeed = runMoveSpeed * moveSpeedMult;
         else moveForce = 0;
     }
 

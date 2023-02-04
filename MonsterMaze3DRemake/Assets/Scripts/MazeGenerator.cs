@@ -26,7 +26,9 @@ public class MazeGenerator : MonoBehaviour
     
     void Awake()
     {
-
+        int cl = PlayerPrefs.GetInt("CurrentLevel");
+        gridWidth = 7 + ((cl/2) * 2);
+        gridLength = gridWidth + 2;
         CreateMazeBorders();
 
         wallCells = new GameObject[gridWidth, gridLength];
@@ -221,9 +223,9 @@ public class MazeGenerator : MonoBehaviour
         {
             if (possibleDir.Count > 1)
             {
-                int chance = Random.Range(0, 3);
+                int chance = Random.Range(0, 5);
 
-                if(chance < 2) // Chance to branch out twice
+                if(chance < 3) // Chance to branch out twice
                 {
                     unfinishedTiles.Add((t.cx, t.cy));
                 } else

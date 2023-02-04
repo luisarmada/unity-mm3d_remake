@@ -1,11 +1,7 @@
 using System.Collections;
-using System.Drawing;
 using TMPro;
-using Unity.VisualScripting;
-using UnityEditor.Build;
 using UnityEngine;
 using UnityEngine.AI;
-using UnityEngine.Rendering;
 using UnityEngine.UI;
 using Color = UnityEngine.Color;
 
@@ -50,15 +46,26 @@ public class Monster : MonoBehaviour
     private float desiredSpeed;
     private NavMeshAgent agent;
 
-    private int pictureTolerance;
+    [SerializeField] private int pictureTolerance;
     [HideInInspector] public int picCount = 0;
     public int minPicTolerance, maxPicTolerance;
 
     [SerializeField] private GameObject retreatCanvas;
+    [SerializeField] private GameObject deathCanvas;
 
     public AudioClip waitSfx, huntSfx, seenSfx, startRetreatSFX;
 
     private bool wentOverPicThreshold = false;
+
+    private bool retreatCoroutineStart = false;
+
+    public GameObject UICam;
+
+    private bool inactive = false;
+
+    private bool chaseSpeedFlag = false;
+
+    private int monstSpeedMult;
 
     // Start is called before the first frame update
     void Start()
@@ -81,12 +88,17 @@ public class Monster : MonoBehaviour
 
         mazeGen = mazeGenObj.GetComponent<MazeGenerator>();
 
-        pictureTolerance = Random.Range(minPicTolerance, maxPicTolerance);
+        int currentLevel = PlayerPrefs.GetInt("CurrentLevel");
+        pictureTolerance = Random.Range((currentLevel/3) + 2, (currentLevel/3) + 3);
+
+        monstSpeedMult = PlayerPrefs.GetInt("MonsterSpeed");
     }
 
     // Update is called once per frame
     void Update()
     {
+        if (inactive) return;
+
         UpdateState();
 
         if (angerLevel != -1 && canGrowl && CheckIsBeingLookedAt()) // Growl when looked at
@@ -134,7 +146,7 @@ public class Monster : MonoBehaviour
         {
             desiredSpeed = retreatSpeed;
             angerLevel = -1;
-            agent.stoppingDistance = 4f;
+            agent.stoppingDistance = 100f;
 
             player.GetComponent<FirstPersonController>().SetSpeedState(3);
 
@@ -151,14 +163,22 @@ public class Monster : MonoBehaviour
                 }
             }
 
-            StartCoroutine(RetreatCountdown());
+            agent.stoppingDistance = 4f;
 
-            agent.isStopped = true;
-            agent.isStopped = false;
+            StartCoroutine(RetreatCountdown());
 
             stateText.color = Color.white;
             stateText.SetText("REX IS RETREATING");
             monsterImage.GetComponent<Image>().sprite = retreatSprite;
+        } else if(distance < 5f) // JUMPSCARE
+        {
+            deathCanvas.SetActive(true);
+            inactive = true;
+            Destroy(player);
+            UICam.SetActive(true);
+            audioSource.mute = true;
+            StartCoroutine(JumpscareTimer());
+            return;
         }
 
         if (CheckIsBeingLookedAt() && angerLevel != -1)
@@ -178,16 +198,26 @@ public class Monster : MonoBehaviour
         }
 
         // MONSTER RETREAT COMPLETE
-        if(angerLevel == -1 && !canSeePlayer && !CheckIsBeingLookedAt())
+        if(!retreatCoroutineStart && angerLevel == -1 && !canSeePlayer && !CheckIsBeingLookedAt())
         {
             stateText.SetText("REX HAS RETREATED");
             sprite.SetActive(false);
             StartCoroutine(RetreatOptions());
+            retreatCoroutineStart = true;
         }
 
         if (angerLevel == 0 || angerLevel == 1)
         {
-            desiredSpeed = roamSpeed; // Set monster speed
+            if(distance < 15)
+            {
+                player.GetComponent<AudioSource>().PlayOneShot(huntSfx);
+                seenSoundPlayed = true;
+                angerLevel = 2;
+            } else
+            {
+                desiredSpeed = roamSpeed; // Set monster speed
+            }
+            
             agent.autoBraking = true;
 
             stateText.color = Color.white;
@@ -266,7 +296,17 @@ public class Monster : MonoBehaviour
         if (angerLevel == 4 || angerLevel == 3)
         {
             agent.autoBraking = false;
-            desiredSpeed = chaseSpeed;
+            
+            if(chaseSpeedFlag == false)
+            {
+                desiredSpeed = chaseSpeed;
+                chaseSpeedFlag = true;
+            } else
+            {
+                desiredSpeed = Mathf.Min(desiredSpeed * (1.00002f * monstSpeedMult), chaseSpeed * 1.5f);
+                Debug.Log(System.Math.Round(desiredSpeed, 3));
+            }
+            
 
             agent.SetDestination(player.transform.position);
             player.GetComponent<FirstPersonController>().SetSpeedState(2);
@@ -287,6 +327,7 @@ public class Monster : MonoBehaviour
                 {
                     player.GetComponent<AudioSource>().PlayOneShot(waitSfx);
                     angerLevel = 0;
+                    chaseSpeedFlag = false;
                 } else
                 {
                     angerLevel = 3;
@@ -329,6 +370,7 @@ public class Monster : MonoBehaviour
 
     IEnumerator RetreatOptions()
     {
+        retreatCoroutineStart = true;
         stateText.SetText("REX HAS RETREATED");
         player.GetComponent<AudioSource>().PlayOneShot(waitSfx);
         yield return new WaitForSeconds(2);
@@ -342,7 +384,8 @@ public class Monster : MonoBehaviour
     IEnumerator RetreatCountdown()
     {
         yield return new WaitForSeconds(10f);
-        StartCoroutine(RetreatOptions());
+        if(!retreatCoroutineStart) { StartCoroutine(RetreatOptions()); }
+       
     }
 
     private bool GetFreeRoamTarget(out Vector3 result)
@@ -376,6 +419,14 @@ public class Monster : MonoBehaviour
 
         mainCamera.transform.localPosition = startPosition;
 
+    }
+
+    IEnumerator JumpscareTimer()
+    {
+        yield return new WaitForSeconds(4f);
+        Cursor.lockState = CursorLockMode.None;
+        Cursor.visible = true;
+        
     }
 
     /*private Collider[] results = new Collider[10];

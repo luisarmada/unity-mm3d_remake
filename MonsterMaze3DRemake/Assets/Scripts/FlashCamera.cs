@@ -31,7 +31,8 @@ public class FlashCamera : MonoBehaviour
 
     void Start()
     {
-        scoreText.SetText("$" + score);
+        score = PlayerPrefs.GetInt("MoneyEarned");
+        scoreText.SetText(score + "$");
         multiplierText.SetText("");
     }
 
@@ -115,7 +116,7 @@ public class FlashCamera : MonoBehaviour
 
                 float standingStillMultiplier = stillShot ? dotProductResult - 0.15f : 0.3f * dotProductResult;
                 float closeShotMultiplier = closeShot ? distance * 2.5f : distance * 8f;
-                float centeredShotMultiplier = centeredShot ? (dotProductResult * dotProductResult) : (dotProductResult * dotProductResult) * 0.6f;
+                float centeredShotMultiplier = centeredShot ? (dotProductResult * dotProductResult) : (dotProductResult * dotProductResult) * (PlayerPrefs.GetInt("CurrentLevel") * 0.6f * (PlayerPrefs.GetInt("MoneyMultiplier")));
 
                 return Mathf.RoundToInt((1000 - closeShotMultiplier) * centeredShotMultiplier * standingStillMultiplier * (1f * 0.33f));
             } else
@@ -136,6 +137,7 @@ public class FlashCamera : MonoBehaviour
         addScore = Mathf.Max(0, addScore);
         if(addScore == 0) multiplierText.SetText("");
         score += addScore;
+        PlayerPrefs.SetInt("MoneyEarned", score);
         float elapsedTime = 0f;
 
         while (elapsedTime < duration)
@@ -148,12 +150,13 @@ public class FlashCamera : MonoBehaviour
         multiplierText.GetComponent<Animator>().SetBool("visible", true); // fade out multiplier text
 
         scoreText.SetText("CAMERA RELOADING.");
-        yield return new WaitForSeconds(picDelay/3);
+        float camReloadMult = (3 * PlayerPrefs.GetInt("CamReloadSpeed"));
+        yield return new WaitForSeconds(picDelay/ camReloadMult);
         scoreText.SetText("CAMERA RELOADING..");
-        yield return new WaitForSeconds(picDelay / 3);
+        yield return new WaitForSeconds(picDelay / camReloadMult);
         scoreText.SetText("CAMERA RELOADING...");
-        yield return new WaitForSeconds(picDelay / 3);
-        scoreText.SetText(score + "$");
+        yield return new WaitForSeconds(picDelay / camReloadMult);
+        scoreText.SetText(PlayerPrefs.GetInt("MoneyEarned") + "$");
 
         multiplierText.SetText("");
         multiplierText.GetComponent<Animator>().SetBool("visible", false);
